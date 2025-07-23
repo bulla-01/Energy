@@ -6,6 +6,11 @@ import plotly.express as px
 from PIL import Image
 import plotly.graph_objects as go 
 import altair as alt 
+import os
+
+print("CWD:", os.getcwd())
+print("Files:", os.listdir("."))
+print("Archive files:", os.listdir("archive"))
 
 st.set_page_config(
     page_title= "Energy Analysis Dashboard",
@@ -17,8 +22,19 @@ st.set_page_config(
 alt.themes.enable("dark")
 
 # Loading file and converting the date into the right format  
-pd.read_csv("archive/Panel_format.csv")
-data["Year"] = pd.to_datetime(data["Year"],format="%Y")
+try:
+    data = pd.read_csv("archive/Panel_format.csv")
+    if data.empty:
+        st.error("The data file is empty.")
+        st.stop()
+    else:
+        data["Year"] = pd.to_datetime(data["Year"], format="%Y")
+except FileNotFoundError:
+    st.error("The file 'archive/Panel_format.csv' was not found. Please check the file path.")
+    st.stop()
+except Exception as e:
+    st.error(f"An error occurred while loading the data: {e}")
+    st.stop()
 
 with st.sidebar:
     st.title("🌩️Energy Dashboard")
